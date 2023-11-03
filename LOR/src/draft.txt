@@ -1,0 +1,140 @@
+import React, { useState, useEffect } from 'react';
+import { Button, PermissionsAndroid, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { BleManager } from 'react-native-ble-plx';
+import CarRemoteControl from './components/pages/controlePage';
+
+export default function App() {
+  const [isBluetoothGranted, setIsBluetoothGranted] = useState(false);
+  const [isBluetoothEnabled, setIsBluetoothEnabled] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("Not granted");
+  const manager = new BleManager();
+
+  useEffect(() => {
+    // Check and request Bluetooth permission when the component mounts
+    checkAndRequestBluetoothPermission();
+  }, []);
+
+  const checkAndRequestBluetoothPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        {
+          title: 'Car Remote Control App Bluetooth Permission',
+          message: 'Car Remote Control App needs access to Bluetooth',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        }
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Bluetooth permission granted');
+        setStatusMessage("Bluetooth permission granted");
+        setIsBluetoothGranted(true);
+        enableBluetooth();
+      } else {
+        console.log('Bluetooth permission denied');
+        setStatusMessage("Bluetooth permission denied");
+      }
+    } catch (err) {
+      console.warn('Error requesting Bluetooth permission', err);
+    }
+  };
+
+  const enableBluetooth = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        const isEnabled = await manager.state();
+        if (isEnabled !== 'PoweredOn') {
+          await manager.enable();
+          setStatusMessage("Bluetooth enabled");
+          setIsBluetoothEnabled(true);
+          scanAndConnect();
+        } else {
+          setStatusMessage("Bluetooth already enabled");
+          setIsBluetoothEnabled(true);
+          scanAndConnect();
+        }
+      } else {
+        setStatusMessage("Bluetooth enabled (iOS)");
+        setIsBluetoothEnabled(true);
+        scanAndConnect();
+      }
+    } catch (error) {
+      console.error('Error enabling Bluetooth', error);
+    }
+  };
+
+  const scanAndConnect = async () => {
+    const DEVICE_NAME = 'Your_HC-05_Device_Name';
+
+    try {
+      const devices = await manager.devices();
+      const hc05Device = devices.find((device) => device.name === DEVICE_NAME);
+
+      if (hc05Device) {
+        await hc05Device.connect();
+        setIsConnected(true);
+      } else {
+        console.error('HC-05 device not found.');
+      }
+    } catch (error) {
+      console.error('Error connecting to device', error);
+    }
+  };
+
+  if (!isBluetoothGranted) {
+    return (
+      <View style={styles.container}>
+        <StatusBar hidden={true} />
+        <Text style={styles.item}>Bluetooth Permissions</Text>
+        <Text style={styles.message}>{statusMessage}</Text>
+        <Button title="Request Bluetooth Permissions" onPress={checkAndRequestBluetoothPermission} />
+      </View>
+    );
+  } else if (!isBluetoothEnabled) {
+    return (
+      <View style={styles.container}>
+        <StatusBar hidden={true} />
+        <Text style={styles.item}>Enabling Bluetooth...</Text>
+        <Text style={styles.message}>{statusMessage}</Text>
+      </View>
+    );
+  } else if (!isConnected) {
+    return (
+      <View style={styles.container}>
+        <StatusBar hidden={true} />
+        <Text style={styles.item}>Connecting to HC-05 Arduino...</Text>
+        <Text style={styles.message}>{statusMessage}</Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <StatusBar hidden={true} />
+        <CarRemoteControl />
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  item: {
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#f58',
+  },
+  message: {
+    color: "#000",
+    textAlign: 'center',
+  },
+});
