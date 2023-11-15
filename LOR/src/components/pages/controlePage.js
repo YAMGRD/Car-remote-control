@@ -1,70 +1,59 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import BluetoothClassic from 'react-native-bluetooth-classic';
 
-const CarRemoteControl = ({ bluetoothDevice }) => {
-  // Replace 'bluetoothDevice' with the actual connected Bluetooth device
-
-  const handleCommand = async (command) => {
-    try {
-      const targetServiceUUID = 'your_service_uuid'; // Replace with the actual service UUID
-      const targetCharacteristicUUID = 'your_characteristic_uuid'; // Replace with the actual characteristic UUID
-
-      if (!bluetoothDevice) {
-        console.error('Bluetooth device not connected.');
-        return;
+const CarRemoteControl = ({ connectedDevice }) => {
+    console.log('Control page');
+    const handleControlCar = (command) => {
+      console.log("handle Controle Car Function");
+      if (connectedDevice) {
+        const data = JSON.stringify({ command });
+        BluetoothClassic.writeToDevice(connectedDevice.id, command)
+          .then(() => {
+            console.log('Control command sent successfully:', command);
+          })
+          .catch((error) => {
+            console.error('Error sending control command:', error);
+          });
       }
-
-      // Convert the command to a byte array or any format expected by your HC-05 module.
-      const dataToSend = new TextEncoder().encode(command);
-
-      await bluetoothDevice.writeCharacteristicWithResponseForService(
-        targetServiceUUID,
-        targetCharacteristicUUID,
-        dataToSend
-      );
-
-      console.log(`Sent command: ${command}`);
-    } catch (error) {
-      console.error('Error sending command:', error);
-    }
-  };
+    };
 
   return (
     <View style={styles.container}>
       <StatusBar hidden={true} />
       <View style={styles.topButtonsContainer}>
-        <TouchableOpacity onPress={() => handleCommand('Turbo ⚡')} style={styles.topButton}>
+        <TouchableOpacity onPress={() => handleControlCar('Turbo ⚡')} style={styles.topButton}>
           <Text style={{ fontSize: 50 }}>⚡</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleCommand('Close arm 🔒')} style={styles.topButton}>
+        <TouchableOpacity onPress={() => handleControlCar('Close arm 🔒')} style={styles.topButton}>
           <Text style={{ fontSize: 50 }}>🔒</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleCommand('Open arm 🔑')} style={styles.topButton}>
+        <TouchableOpacity onPress={() => handleControlCar('Open arm 🔑')} style={styles.topButton}>
           <Text style={{ fontSize: 50 }}>🔑</Text>
         </TouchableOpacity>
       </View>
       <View style={{ flexDirection: 'row' }}>
         <View style={styles.leftButtonsContainer}>
           <TouchableOpacity
-            onPressIn={() => handleCommand('up')}
-            onPressOut={() => handleCommand('up Stop')}
+            onPressIn={() => handleControlCar('up')}
+            onPressOut={() => handleControlCar('up Stop')}
             style={styles.button}
           >
             <Text style={{ color: '#fff', fontSize: 50 }}>▲</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPressIn={() => handleCommand('Down')}
-            onPressOut={() => handleCommand('Down Stop')}
+            onPressIn={() => handleControlCar('Down')}
+            onPressOut={() => handleControlCar('Down Stop')}
             style={styles.button}
           >
             <Text style={{ color: '#fff', fontSize: 50 }}>▼</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.rightButtonsContainer}>
-          <TouchableOpacity onPress={() => handleCommand('left')} style={styles.button}>
+          <TouchableOpacity onPress={() => handleControlCar('left')} style={styles.button}>
             <Text style={{ color: '#fff', fontSize: 50 }}>◀</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleCommand('right')} style={styles.button}>
+          <TouchableOpacity onPress={() => handleControlCar('right')} style={styles.button}>
             <Text style={{ color: '#fff', fontSize: 50 }}>▶</Text>
           </TouchableOpacity>
         </View>
