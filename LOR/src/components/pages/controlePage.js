@@ -1,11 +1,43 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, FlatList } from 'react-native';
 import BluetoothClassic from 'react-native-bluetooth-classic';
 
 const CarRemoteControl = ({ connectedDevice }) => {
-    console.log('Control page');
-    const handleControlCar = (command) => {
-      console.log("handle Controle Car Function");
+  const [toggleArm, setToggleArm]= useState(true);
+  const [toggleSpeed, setToggleSpeed]= useState(false);
+const axe = [
+  {axeI:require('../../Assets/number1.png'),commandP:'+1',commandM:'-1'},
+  {axeI:require('../../Assets/number2.png'),commandP:'+2',commandM:'-2'},
+  {axeI:require('../../Assets/number3.png'),commandP:'+3',commandM:'-3'},
+]
+
+const renderItem =({item})=>{
+  return(
+  <View style={[styles.leftButtonsContainer,{marginRight:10,marginLeft:0}]}>
+  <TouchableOpacity
+    onPressIn={() => handleControlCar(item.commandP)}
+    onPressOut={()=>handleControlCar("stop")}
+      style={[styles.button,{marginBottom:10}]}
+    >
+    <Image source={require('../../Assets/plus.png')} style={{width:'100%',height:'100%'}} />
+    </TouchableOpacity>
+  <TouchableOpacity
+      style={[styles.button,{marginBottom:10}]}
+    >
+    <Image source={item.axeI} style={{width:'100%',height:'100%'}} />
+    </TouchableOpacity>
+  <TouchableOpacity
+    onPressIn={() => handleControlCar(item.commandM)}
+    onPressOut={()=>handleControlCar("stop")}
+      style={[styles.button,{marginBottom:10}]}
+    >
+    <Image source={require('../../Assets/minus.png')} style={{width:'100%',height:'100%'}} />
+    </TouchableOpacity>
+  </View>
+)}
+
+    const handleControlCar = (command) => {  
+      console.log(command);    
       if (connectedDevice) {
         const data = JSON.stringify({ command });
         BluetoothClassic.writeToDevice(connectedDevice.id, command)
@@ -18,77 +50,113 @@ const CarRemoteControl = ({ connectedDevice }) => {
       }
     };
 
+    const onToggleArm = () => {
+      setToggleArm((prev) => !prev);
+      const command = toggleArm ? 'close' : 'open';
+      handleControlCar(command);
+    };
+    const onToggleSpeed = () => {
+      setToggleSpeed((prev) => !prev);
+      const command = toggleSpeed ? '4*4' : '2*4';
+      handleControlCar(command);
+    };
+
   return (
     <View style={styles.container}>
       <StatusBar hidden={true} />
-      <View style={styles.topButtonsContainer}>
-        <TouchableOpacity onPress={() => handleControlCar('Turbo ⚡')} style={styles.topButton}>
-          <Text style={{ fontSize: 50 }}>⚡</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleControlCar('Close arm 🔒')} style={styles.topButton}>
-          <Text style={{ fontSize: 50 }}>🔒</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleControlCar('Open arm 🔑')} style={styles.topButton}>
-          <Text style={{ fontSize: 50 }}>🔑</Text>
-        </TouchableOpacity>
-      </View>
       <View style={{ flexDirection: 'row' }}>
         <View style={styles.leftButtonsContainer}>
           <TouchableOpacity
-            onPressIn={() => handleControlCar('up')}
-            onPressOut={() => handleControlCar('up Stop')}
-            style={styles.button}
+          onPressIn={() => handleControlCar('u')}
+          onPressOut={()=>handleControlCar("stop")}
+          style={styles.button}
           >
-            <Text style={{ color: '#fff', fontSize: 50 }}>▲</Text>
+          <Image source={require('../../Assets/arrowF.png')} style={{width:'100%',height:'100%'}} />
+          </TouchableOpacity>
+          <View style={styles.rightButtonsContainer}>
+          <TouchableOpacity
+          onPressIn={() => handleControlCar('l')}
+          onPressOut={()=>handleControlCar("stop")}
+          style={styles.button}>
+          <Image source={require('../../Assets/arrowL.png')} style={{width:'100%',height:'100%'}} />
           </TouchableOpacity>
           <TouchableOpacity
-            onPressIn={() => handleControlCar('Down')}
-            onPressOut={() => handleControlCar('Down Stop')}
+          onPressIn={() => handleControlCar('r')}
+          onPressOut={()=>handleControlCar("stop")}
+          style={styles.button}>
+          <Image source={require('../../Assets/arrowR.png')} style={{width:'100%',height:'100%'}} />
+          </TouchableOpacity>
+        </View>
+          <TouchableOpacity
+          onPressIn={() => handleControlCar('d')}
+          onPressOut={()=>handleControlCar("stop")}
             style={styles.button}
           >
-            <Text style={{ color: '#fff', fontSize: 50 }}>▼</Text>
+          <Image source={require('../../Assets/arrowD.png')} style={{width:'100%',height:'100%'}} />
           </TouchableOpacity>
         </View>
-        <View style={styles.rightButtonsContainer}>
-          <TouchableOpacity onPress={() => handleControlCar('left')} style={styles.button}>
-            <Text style={{ color: '#fff', fontSize: 50 }}>◀</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleControlCar('right')} style={styles.button}>
-            <Text style={{ color: '#fff', fontSize: 50 }}>▶</Text>
+        <View style={{justifyContent:'center', marginLeft:20,alignItems:'center'}}>
+          {toggleArm ?(
+                    <TouchableOpacity onPress={() =>onToggleArm()} style={styles.topButton}>
+                    <Image source={require('../../Assets/robot-arm.png')} style={{width:'100%',height:'100%'}} />
+                    </TouchableOpacity>
+          ):(
+            <TouchableOpacity onPress={() =>onToggleArm()} style={styles.topButton}>
+            <Image source={require('../../Assets/robot-armO.png')} style={{width:'100%',height:'100%'}} />
+            </TouchableOpacity>
+          )}
+          <View style={styles.rightButtonsContainer}>
+          {toggleSpeed ?(
+                    <TouchableOpacity onPress={() =>onToggleSpeed()} style={styles.topButton}>
+                    <Image source={require('../../Assets/car.png')} style={{width:'100%',height:'100%'}} />
+                    </TouchableOpacity>
+          ):(
+            <TouchableOpacity onPress={() =>onToggleSpeed()} style={styles.topButton}>
+            <Image source={require('../../Assets/sedan.png')} style={{width:'100%',height:'100%'}} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+          onPress={() => handleControlCar('init')}
+          style={styles.button}>
+          <Image source={require('../../Assets/init.png')} style={{width:'100%',height:'100%'}} />
           </TouchableOpacity>
         </View>
+        </View>
+        <>
+        <FlatList
+          data={axe}
+          renderItem={(item) => renderItem(item)}
+          style={{  }}
+          contentContainerStyle={{ flexDirection: 'row', justifyContent: 'center' }}
+        />
+        </>
       </View>
     </View>
   );
 };
 
 const buttonStyle = {
-  width: 100,
-  height: 100,
-  backgroundColor: '#007bff',
+  width: 70,
+  height: 70,
   borderRadius: 50,
   justifyContent: 'center',
   alignItems: 'center',
+  //backgroundColor:'darkgreen'
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     backgroundColor: '#fff',
-  },
-  topButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
+    alignContent: 'center',
   },
   leftButtonsContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 300,
+    marginLeft: 100,
   },
   rightButtonsContainer: {
     flexDirection: 'row',
@@ -101,7 +169,7 @@ const styles = StyleSheet.create({
   },
   button: {
     ...buttonStyle,
-    margin: 10,
+    margin: 0,
   },
 });
 

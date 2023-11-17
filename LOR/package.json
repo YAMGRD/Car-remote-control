@@ -10,13 +10,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@miblanchard/react-native-slider": "^2.3.1",
-    "easy-bluetooth-classic": "^1.0.4",
     "react": "18.2.0",
     "react-native": "0.72.6",
-    "react-native-ble-plx": "^3.1.2-rc.0",
-    "react-native-bluetooth-classic": "^1.60.0-rc.29",
-    "react-native-permissions": "^3.10.1"
+    "react-native-bluetooth-classic": "^1.60.0-rc.29"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
