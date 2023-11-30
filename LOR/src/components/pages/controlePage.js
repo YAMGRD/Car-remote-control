@@ -1,34 +1,38 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View,TouchableOpacity, StyleSheet, StatusBar, Image, FlatList } from 'react-native';
 import BluetoothClassic from 'react-native-bluetooth-classic';
 
 const CarRemoteControl = ({ connectedDevice }) => {
   const [toggleArm, setToggleArm]= useState(true);
-  const [toggleSpeed, setToggleSpeed]= useState(false);
 const axe = [
-  {axeI:require('../../Assets/number1.png'),commandP:'+1',commandM:'-1'},
-  {axeI:require('../../Assets/number2.png'),commandP:'+2',commandM:'-2'},
-  {axeI:require('../../Assets/number3.png'),commandP:'+3',commandM:'-3'},
+  {axeI:require('../../Assets/number1.png'),commandP:'Z',commandM:'z',init:'V'},
+  {axeI:require('../../Assets/number2.png'),commandP:'C',commandM:'c',init:'N'},
+  {axeI:require('../../Assets/number3.png'),commandP:'D',commandM:'d',init:'T'},
 ]
+useEffect(()=>{
+  handleControlCar('I');
+  handleControlCar('S');
+},[])
 
 const renderItem =({item})=>{
   return(
   <View style={[styles.leftButtonsContainer,{marginRight:10,marginLeft:0}]}>
   <TouchableOpacity
     onPressIn={() => handleControlCar(item.commandP)}
-    onPressOut={()=>handleControlCar("stop")}
+    onPressOut={()=>handleControlCar('S')}
       style={[styles.button,{marginBottom:10}]}
     >
     <Image source={require('../../Assets/plus.png')} style={{width:'100%',height:'100%'}} />
     </TouchableOpacity>
   <TouchableOpacity
+  onPress={()=>handleControlCar(item.init)}
       style={[styles.button,{marginBottom:10}]}
     >
     <Image source={item.axeI} style={{width:'100%',height:'100%'}} />
     </TouchableOpacity>
   <TouchableOpacity
     onPressIn={() => handleControlCar(item.commandM)}
-    onPressOut={()=>handleControlCar("stop")}
+    onPressOut={()=>handleControlCar('S')}
       style={[styles.button,{marginBottom:10}]}
     >
     <Image source={require('../../Assets/minus.png')} style={{width:'100%',height:'100%'}} />
@@ -49,47 +53,41 @@ const renderItem =({item})=>{
           });
       }
     };
-
     const onToggleArm = () => {
+      //handleConrol()
       setToggleArm((prev) => !prev);
-      const command = toggleArm ? 'close' : 'open';
+      const command = toggleArm ? 'H' : 'h';
       handleControlCar(command);
     };
-    const onToggleSpeed = () => {
-      setToggleSpeed((prev) => !prev);
-      const command = toggleSpeed ? '4*4' : '2*4';
-      handleControlCar(command);
-    };
-
   return (
     <View style={styles.container}>
       <StatusBar hidden={true} />
       <View style={{ flexDirection: 'row' }}>
         <View style={styles.leftButtonsContainer}>
           <TouchableOpacity
-          onPressIn={() => handleControlCar('u')}
-          onPressOut={()=>handleControlCar("stop")}
+          onPressIn={() => handleControlCar('B')}
+          onPressOut={()=>handleControlCar("S")}
           style={styles.button}
           >
           <Image source={require('../../Assets/arrowF.png')} style={{width:'100%',height:'100%'}} />
           </TouchableOpacity>
           <View style={styles.rightButtonsContainer}>
           <TouchableOpacity
-          onPressIn={() => handleControlCar('l')}
-          onPressOut={()=>handleControlCar("stop")}
+          onPressIn={() => handleControlCar('R')}
+          onPressOut={()=>handleControlCar("S")}
           style={styles.button}>
           <Image source={require('../../Assets/arrowL.png')} style={{width:'100%',height:'100%'}} />
           </TouchableOpacity>
           <TouchableOpacity
-          onPressIn={() => handleControlCar('r')}
-          onPressOut={()=>handleControlCar("stop")}
+          onPressIn={() => handleControlCar('L')}
+          onPressOut={()=>handleControlCar("S")}
           style={styles.button}>
           <Image source={require('../../Assets/arrowR.png')} style={{width:'100%',height:'100%'}} />
           </TouchableOpacity>
         </View>
           <TouchableOpacity
-          onPressIn={() => handleControlCar('d')}
-          onPressOut={()=>handleControlCar("stop")}
+          onPressIn={() => handleControlCar('F')}
+          onPressOut={()=>handleControlCar("S")}
             style={styles.button}
           >
           <Image source={require('../../Assets/arrowD.png')} style={{width:'100%',height:'100%'}} />
@@ -106,20 +104,7 @@ const renderItem =({item})=>{
             </TouchableOpacity>
           )}
           <View style={styles.rightButtonsContainer}>
-          {toggleSpeed ?(
-                    <TouchableOpacity onPress={() =>onToggleSpeed()} style={styles.topButton}>
-                    <Image source={require('../../Assets/car.png')} style={{width:'100%',height:'100%'}} />
-                    </TouchableOpacity>
-          ):(
-            <TouchableOpacity onPress={() =>onToggleSpeed()} style={styles.topButton}>
-            <Image source={require('../../Assets/sedan.png')} style={{width:'100%',height:'100%'}} />
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-          onPress={() => handleControlCar('init')}
-          style={styles.button}>
-          <Image source={require('../../Assets/init.png')} style={{width:'100%',height:'100%'}} />
-          </TouchableOpacity>
+          
         </View>
         </View>
         <>
@@ -141,7 +126,6 @@ const buttonStyle = {
   borderRadius: 50,
   justifyContent: 'center',
   alignItems: 'center',
-  //backgroundColor:'darkgreen'
 };
 
 const styles = StyleSheet.create({
