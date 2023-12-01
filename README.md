@@ -79,6 +79,12 @@ Before you begin, ensure you have the following:
 6. Connect to the HC-05 module from the app.
 7. Once connected, use the provided controls to send commands to your car.
 
+
+## Screenshoot
+
+![Screenshoot](./assets/Screenshot_2023-12-01-20-07-47-956_com.lor.jpg)
+
+
 ## Troubleshooting
 
 - If you encounter any issues with Bluetooth connectivity, ensure that the HC-05 module is properly connected, and permissions are set correctly.
