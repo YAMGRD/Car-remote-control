@@ -88,7 +88,7 @@ Before you begin, ensure you have the following:
 ## Troubleshooting
 
 - If you encounter any issues with Bluetooth connectivity, ensure that the HC-05 module is properly connected, and permissions are set correctly.
-- Check the console for error messages and consult the documentation for the `react-native-bluetooth-serial-next` library.
+- Check the console for error messages and consult the documentation for the `react-native-bluetooth-classic` library.
 - Pair HC-05 module manualy then open app.
 
 ## Contributing
