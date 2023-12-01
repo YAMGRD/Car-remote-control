@@ -1,6 +1,5 @@
 #include <Servo.h>
 
-
 // Motor Front Right wiring
 #define FrontRightENA  10
 #define FrontRightIN1  36
@@ -74,17 +73,15 @@ void setup() {
     digitalWrite(BackLeftIN4, LOW);
 
     servo_claw.attach(4);
-    servo_bottom.attach(7);
-    servo_joint1.attach(5);
-    servo_joint2.attach(6);
+    servo_bottom.attach(5);
+    servo_joint1.attach(6);
+    servo_joint2.attach(7);
 
 
 }
 void loop(){
     StartViaBluetooth();
 }
-
-
 void StartViaSerialMonitor(){
   if (GetCMDs_SerialMonitor()){
 
@@ -92,25 +89,28 @@ void StartViaSerialMonitor(){
       if (iniatalisation) 
       Init(); 
       else  
-      move(base_pos,axe1_pos,axe2_pos,hand);
+      move(base_pos,axe1_pos,axe2_pos);
 
     }else {
       Serial.println("Invalide Command"); 
     }
 }
-
 void StartViaBluetooth(){
  
+ 
   if (Serial.available() > 0 ){
+        
         cmd = Serial.read();
         Serial.print("Recive : "); 
         Serial.println(cmd);
         ConvertCmd(cmd);
         Navigate(diraction, 120);
-        move(base_pos,axe1_pos,axe2_pos,hand);
+        openArm(hand);
         
     }else {
-      Serial.println("Invalid command ");
+      Serial.println(cmd); 
+      ConvertCmd(cmd);
+      move(base_pos,axe1_pos,axe2_pos);
      }
 }
 void ConvertCmd(char cmd ){
@@ -135,25 +135,42 @@ void ConvertCmd(char cmd ){
                 break ;
       case 'Z' :
                 base_pos++ ;  
+                if ( base_pos >= 180 ) base_pos = 180 ; 
                 break ;
       case 'z' :
                 base_pos-- ;  
+                if ( base_pos <= 0 )  base_pos = 0 ; 
                 break ;
       case 'C' :
                 axe1_pos++ ;  
+                if ( axe1_pos >= 180 ) axe1_pos = 180 ; 
                 break ;
       case 'c' :
-                axe1_pos-- ;  
+                axe1_pos-- ; 
+                if ( axe1_pos <= 0 )  axe1_pos = 0 ; 
                 break ;
       case 'D' :
-                axe2_pos++ ;  
+                axe2_pos++ ;
+                if ( axe2_pos >= 180 ) axe2_pos = 180 ;  
                 break ; 
       case 'd' :
-                axe2_pos--; 
+                axe2_pos--;
+                if ( axe2_pos <= 0 )  axe2_pos = 0 ; 
                 break ;
       case 'H' :
-                if (hand) hand = 0 ; 
-                else hand  = 1 ;    
+                hand  = 1 ;    
+                break ;
+      case 'V' :
+                base_pos  = 0 ;    
+                break ;
+      case 'N' :
+                axe1_pos  = 0 ;    
+                break ;
+      case 'T' :
+                axe2_pos  = 0 ;    
+                break ;
+      case 'h' :
+                hand = 0 ; 
                 break ;
       case 'I' : 
                 Init();
@@ -198,30 +215,26 @@ int GetCMDs_SerialMonitor(){
           }
 
 }
-void move(int base , int axe1 , int axe2 , int hand ){
+void move(int base , int axe1 , int axe2){
 
 
-  if ( base < 0 )
-    base = 0 ; 
-  if ( axe1 < 0 )
-    axe1 = 0 ; 
-  if ( axe2 < 0 )
-    axe2 = 0 ; 
+  if ( base <= 0 )  base = 0 ; 
+  if ( axe1 <= 0 )  axe1 = 0 ; 
+  if ( axe2 <= 0 )  axe2 = 0 ; 
  
-  if ( base > 180 )
-    base = 180 ; 
-  if ( axe1 > 180 )
-    axe1 = 180 ; 
-  if ( axe2 > 180 )
-    axe2 = 180 ; 
+  if ( base >= 180 ) base = 180 ; 
+  if ( axe1 >= 180 ) axe1 = 180 ; 
+  if ( axe2 >= 180 ) axe2 = 180 ; 
 
   servo_claw.write(base);
   servo_bottom.write(axe1);
   servo_joint1.write(axe2);
     
-  if (hand) servo_joint2.write(20); else servo_joint2.write(90); 
-
   delay(15);
+
+}
+void openArm(int hand){
+    if (hand) servo_joint2.write(20); else servo_joint2.write(90); 
 }
 void Init(){
 
@@ -229,14 +242,12 @@ void Init(){
   servo_bottom.write(0);
   servo_joint1.write(0);
   servo_joint2.write(0);
-  delay(1000);
-
+  delay(15);
 }
 void Backward(int IN1 , int IN2 , int EN , int motorSpeed ){
 
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
-    
     analogWrite(EN, motorSpeed);
 
 }
@@ -264,7 +275,7 @@ void Forward(int IN1 , int IN2 , int EN , int motorSpeed ){
   
 }
 void Run2X4Forward(int motorSpeed ){
-  Serial.println("Run2X4Forward");
+    Serial.println("Run2X4Forward");
     Forward(BackRightIN1, BackRightIN2, BackRightENA,motorSpeed);
     Forward(BackLeftIN4, BackLeftIN3, BackLeftENB,motorSpeed);
 }
